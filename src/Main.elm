@@ -36,18 +36,19 @@ update msg state =
             {current = state.current, text = newI, xs = state.xs }
         
 
+todoElement : Int -> Bool -> String -> Html.Html Event
+todoElement id isDone text = Html.li [] [
+                Html.input [Html.Attributes.type_ "checkbox", Html.Attributes.checked isDone, Html.Events.onCheck(\x -> UpdateTodo {id=id, isDone= x , text= text})] [ ],
+                Html.a [Html.Attributes.style "text-decoration" (if isDone then "line-through" else "none")] [ Html.text text],
+                Html.button [ Html.Events.onClick (RemoveTodo {id=id, isDone=isDone, text=text}) ] [Html.text "Remove"]
+                ]
+
 view : Model -> Html.Html Event
 view model =
     Html.div[] [
         Html.input [ Html.Attributes.placeholder "Enter your todo",  Html.Attributes.value model.text, Html.Events.onInput (\x -> ChageStateInput model.current x) ] [],
         Html.button [ Html.Attributes.value "Add", Html.Events.onClick (AddTodo {id=model.current, isDone=False, text=model.text}) ] [ Html.text "Add"],
-        Html.ul []  (List.map (\{id, isDone,text} -> 
-            Html.li [] [
-                Html.input [Html.Attributes.type_ "checkbox", Html.Attributes.checked isDone, Html.Events.onCheck(\x -> UpdateTodo {id=id, isDone= x , text= text})] [ ],
-                Html.a [Html.Attributes.style "text-decoration" (if isDone then "line-through" else "none")] [ Html.text text],
-                Html.button [ Html.Events.onClick (RemoveTodo {id=id, isDone=isDone, text=text}) ] [Html.text "Remove"]
-                ]
-                ) model.xs )
+        Html.ul [] (model.xs |> List.map (\{id, isDone,text} -> todoElement id isDone text))
     ]
     
     
